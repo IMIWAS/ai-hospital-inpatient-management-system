@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.BedInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.BedInfo">
+        <id column="bed_id" property="bedId"/>
+        <result column="bed_no" property="bedNo"/>
+        <result column="room_no" property="roomNo"/>
+        <result column="department" property="department"/>
+        <result column="floor" property="floor"/>
+        <result column="bed_type" property="bedType"/>
+        <result column="bed_status" property="bedStatus"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="inhospital_id" property="inhospitalId"/>
+        <result column="bed_price" property="bedPrice"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status_name" property="statusName"/>
+        <result column="patient_name" property="patientName"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        b.bed_id, b.bed_no, b.room_no, b.department, b.floor, b.bed_type,
+        b.bed_status, b.patient_id, b.inhospital_id, b.bed_price, b.remark,
+        b.create_time, b.update_time,
+        CASE b.bed_status WHEN 0 THEN '空床' WHEN 1 THEN '占用' WHEN 2 THEN '维修' WHEN 3 THEN '预留' ELSE '未知' END AS status_name,
+        p.name AS patient_name
+    </sql>
+
+    <!-- 分页查询：保留 where 骨架，SQL 体 TODO -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM bed_info b
+        LEFT JOIN patient_info p ON b.patient_id = p.patient_id
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (b.bed_no LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR b.room_no LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.department != null and q.department != ''">
+                AND b.department = #{q.department}
+            </if>
+            <if test="q.floor != null and q.floor != ''">
+                AND b.floor = #{q.floor}
+            </if>
+            <if test="q.bedType != null and q.bedType != ''">
+                AND b.bed_type = #{q.bedType}
+            </if>
+            <if test="q.bedStatus != null">
+                AND b.bed_status = #{q.bedStatus}
+            </if>
+            <!-- TODO 学生可补充其他条件 -->
+        </where>
+        <!-- TODO 学生可补充 ORDER BY（参考下面的 choose 结构） -->
+        <choose>
+            <when test="q.orderBy != null and q.orderBy != ''">
+                order by #{q.orderBy}
+                <choose>
+                    <when test="q.orderType != null and q.orderType == 'aes'">AES</when>
+                    <otherwise>DESC</otherwise>
+                </choose>
+            </when>
+            <otherwise>order by b.create_time desc</otherwise>
+        </choose>
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM bed_info b
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (b.bed_no LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR b.room_no LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.department != null and q.department != ''">
+                AND b.department = #{q.department}
+            </if>
+            <if test="q.bedStatus != null">
+                AND b.bed_status = #{q.bedStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：根据 bed_id 查询 -->
+    </select>
+
+    <select id="selectByBedNoAndDept" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectEmptyBeds" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：查 bed_status = 0 的床位，支持按 department/bedType 过滤 -->
+    </select>
+
+    <select id="selectBedStatsByDept" resultType="map">
+        <!-- TODO 学生实现：按科室统计床位（总数、空床、占用、维修、预留） -->
+    </select>
+
+    <select id="selectAllBedStats" resultType="map">
+        <!-- TODO 学生实现：所有科室床位使用率统计 -->
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.BedInfo">
+        <!-- TODO 学生实现：插入床位 -->
+        insert into bed_info(bed_no,room_no,department,floor,bed_type,bed_status,patient_id,inhospital_id,bed_price,remark,create_time,update_time)
+        values(#{bedNo},#{roomNo},#{department},#{floor},#{bedType},#{bedStatus},#{patientId},#{inhospitalId},#{bedPrice},#{remark},#{createTime},#{updateTime})
+
+            </insert>
+
+    <update id="update" parameterType="com.hims.domain.BedInfo">
+        <!-- TODO 学生实现：动态更新字段（用 <set> + <if>） -->
+        update bed_info
+        <set>
+            <if test="bedNo != null and bedNo != ''">bed_no = #{bedNo},</if>
+            <if test="roomNo != null and roomNo != ''">room_no = #{roomNo},</if>
+            <if test="department != null and department != ''">department = #{department},</if>
+            <if test="floor != null and floor != ''">floor = #{floor},</if>
+            <if test="bedType != null and bedType != ''">bed_type = #{bedType},</if>
+            <if test="bedStatus != null ">bed_status = #{bedStatus},</if>
+            <if test="patientId != null and patientId != ''">patient_id = #{patientId},</if>
+            <if test="inhospitalId != null and inhospitalId != ''">inhospital_id = #{inhospitalId},</if>
+            <if test="bedPrice != null ">bed_price = #{bedPrice},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </set>
+        where bed_id = #{bedId}
+    </update>
+
+    <update id="updateStatus">
+        <!-- TODO 学生实现：更新床位状态（bedStatus + patientId + inhospitalId） -->
+    </update>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+        delete from bed_info where bed_id=#{bedId}
+    </delete>
+
+</mapper>

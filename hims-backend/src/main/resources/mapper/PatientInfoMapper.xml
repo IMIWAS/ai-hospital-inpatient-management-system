@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.PatientInfoMapper">
+
+    <!-- 通用列（学生照此建表） -->
+    <sql id="Base_Column">
+        p.patient_id, p.patient_no, p.name, p.gender, p.age, p.birth_date,
+        p.id_card, p.phone, p.address, p.emergency_contact, p.emergency_phone,
+        p.medical_history, p.allergy_info, p.blood_type, p.marital_status,
+        p.occupation, p.nationality, p.insurance_type, p.avatar_url,
+        p.create_time, p.update_time, p.create_user_id
+    </sql>
+
+    <!-- 关联列 -->
+    <sql id="Join_Column">
+        u.real_name AS create_user_name
+    </sql>
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.PatientInfo">
+        <id column="patient_id" property="patientId"/>
+        <result column="patient_no" property="patientNo"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="age" property="age"/>
+        <result column="birth_date" property="birthDate"/>
+        <result column="id_card" property="idCard"/>
+        <result column="phone" property="phone"/>
+        <result column="address" property="address"/>
+        <result column="emergency_contact" property="emergencyContact"/>
+        <result column="emergency_phone" property="emergencyPhone"/>
+        <result column="medical_history" property="medicalHistory"/>
+        <result column="allergy_info" property="allergyInfo"/>
+        <result column="blood_type" property="bloodType"/>
+        <result column="marital_status" property="maritalStatus"/>
+        <result column="occupation" property="occupation"/>
+        <result column="nationality" property="nationality"/>
+        <result column="insurance_type" property="insuranceType"/>
+        <result column="avatar_url" property="avatarUrl"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="create_user_name" property="createUserName"/>
+        <result column="inhospital_status" property="inhospitalStatus"/>
+        <result column="current_inhospital_id" property="currentInhospitalId"/>
+        <result column="current_inhospital_no" property="currentInhospitalNo"/>
+    </resultMap>
+
+    <!-- 分页查询：保留 where 骨架 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>,
+        <include refid="Join_Column"/>
+        <!-- TODO 学生可补充：在院状态/最近住院号等关联字段 -->
+        FROM patient_info p
+        LEFT JOIN sys_user u ON p.create_user_id = u.user_id
+        <!-- TODO 学生可补充：是否关联 patient_inhospital 判断在院状态 -->
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR p.patient_id LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR p.phone LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR p.id_card LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.gender != null and q.gender != ''">
+                AND p.gender = #{q.gender}
+            </if>
+            <if test="q.bloodType != null and q.bloodType != ''">
+                AND p.blood_type = #{q.bloodType}
+            </if>
+            <if test="q.department != null and q.department != ''">
+                <!-- TODO 学生实现：按科室过滤 -->
+            </if>
+            <if test="q.inhospitalStatus != null">
+                <!-- TODO 学生实现：在院状态过滤 -->
+            </if>
+            <if test="q.ageStart != null">
+                AND p.age &gt;= #{q.ageStart}
+            </if>
+            <if test="q.ageEnd != null">
+                AND p.age &lt;= #{q.ageEnd}
+            </if>
+            <if test="q.createTimeStart != null">
+                AND p.create_time &gt;= #{q.createTimeStart}
+            </if>
+            <if test="q.createTimeEnd != null">
+                AND p.create_time &lt;= #{q.createTimeEnd}
+            </if>
+        </where>
+        <!-- TODO 学生可补充：ORDER BY -->
+    </select>
+
+    <!-- 计数 -->
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM patient_info p
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR p.patient_id LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR p.phone LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR p.id_card LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.gender != null and q.gender != ''">
+                AND p.gender = #{q.gender}
+            </if>
+            <if test="q.bloodType != null and q.bloodType != ''">
+                AND p.blood_type = #{q.bloodType}
+            </if>
+            <if test="q.ageStart != null">
+                AND p.age &gt;= #{q.ageStart}
+            </if>
+            <if test="q.ageEnd != null">
+                AND p.age &lt;= #{q.ageEnd}
+            </if>
+            <if test="q.createTimeStart != null">
+                AND p.create_time &gt;= #{q.createTimeStart}
+            </if>
+            <if test="q.createTimeEnd != null">
+                AND p.create_time &lt;= #{q.createTimeEnd}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：根据 patient_id 查询 -->
+    </select>
+
+    <select id="selectByIdCard" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：根据 id_card 查询，LIMIT 1 -->
+    </select>
+
+    <select id="selectByInhospitalNo" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：关联 patient_inhospital 表，按住院号查 -->
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.PatientInfo">
+        <!-- TODO 学生实现：插入患者（字段参见 <sql id="Base_Column">） -->
+    </insert>
+
+    <update id="update" parameterType="com.hims.domain.PatientInfo">
+        <!-- TODO 学生实现：动态更新（用 <set> + <if>） -->
+    </update>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+    </delete>
+
+    <select id="countByIdCard" resultType="int">
+        <!-- TODO 学生实现：检查身份证号是否存在（支持 excludeId 排除） -->
+    </select>
+
+</mapper>

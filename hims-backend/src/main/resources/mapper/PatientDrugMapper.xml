@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.PatientDrugMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.PatientDrug">
+        <id column="drug_id" property="drugId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="inhospital_id" property="inhospitalId"/>
+        <result column="prescription_no" property="prescriptionNo"/>
+        <result column="drug_name" property="drugName"/>
+        <result column="drug_spec" property="drugSpec"/>
+        <result column="drug_dose" property="drugDose"/>
+        <result column="drug_unit" property="drugUnit"/>
+        <result column="drug_frequency" property="drugFrequency"/>
+        <result column="drug_route" property="drugRoute"/>
+        <result column="doctor_advice" property="doctorAdvice"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="days" property="days"/>
+        <result column="total_quantity" property="totalQuantity"/>
+        <result column="price" property="price"/>
+        <result column="total_price" property="totalPrice"/>
+        <result column="execute_status" property="executeStatus"/>
+        <result column="execute_time" property="executeTime"/>
+        <result column="execute_user_id" property="executeUserId"/>
+        <result column="doctor_id" property="doctorId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="inhospital_no" property="inhospitalNo"/>
+        <result column="doctor_name" property="doctorName"/>
+        <result column="execute_user_name" property="executeUserName"/>
+        <result column="execute_status_name" property="executeStatusName"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        pd.drug_id, pd.patient_id, pd.inhospital_id, pd.prescription_no, pd.drug_name,
+        pd.drug_spec, pd.drug_dose, pd.drug_unit, pd.drug_frequency, pd.drug_route,
+        pd.doctor_advice, pd.start_time, pd.end_time, pd.days, pd.total_quantity,
+        pd.price, pd.total_price, pd.execute_status, pd.execute_time, pd.execute_user_id,
+        pd.doctor_id, pd.create_time, pd.update_time,
+        pi.name AS patient_name,
+        phi.inhospital_no,
+        su.real_name AS doctor_name,
+        se.real_name AS execute_user_name,
+        CASE pd.execute_status
+            WHEN 0 THEN '未执行'
+            WHEN 1 THEN '已执行'
+            WHEN 2 THEN '暂停'
+            WHEN 3 THEN '完成'
+            ELSE '未知'
+        END AS execute_status_name
+    </sql>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM patient_drug pd
+        LEFT JOIN patient_info pi ON pd.patient_id = pi.patient_id
+        LEFT JOIN patient_inhospital phi ON pd.inhospital_id = phi.inhospital_id
+        LEFT JOIN sys_user su ON pd.doctor_id = su.user_id
+        LEFT JOIN sys_user se ON pd.execute_user_id = se.user_id
+        <where>
+            <if test="q.patientId != null and q.patientId != ''">
+                AND pd.patient_id = #{q.patientId}
+            </if>
+            <if test="q.inhospitalId != null">
+                AND pd.inhospital_id = #{q.inhospitalId}
+            </if>
+            <if test="q.drugName != null and q.drugName != ''">
+                AND pd.drug_name LIKE CONCAT('%', #{q.drugName}, '%')
+            </if>
+            <if test="q.executeStatus != null">
+                AND pd.execute_status = #{q.executeStatus}
+            </if>
+            <if test="q.doctorId != null">
+                AND pd.doctor_id = #{q.doctorId}
+            </if>
+            <if test="q.startTimeStart != null">
+                AND pd.start_time &gt;= #{q.startTimeStart}
+            </if>
+            <if test="q.startTimeEnd != null">
+                AND pd.start_time &lt;= #{q.startTimeEnd}
+            </if>
+        </where>
+        <!-- TODO 学生可补充 ORDER BY -->
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM patient_drug pd
+        <where>
+            <if test="q.patientId != null and q.patientId != ''">
+                AND pd.patient_id = #{q.patientId}
+            </if>
+            <if test="q.executeStatus != null">
+                AND pd.execute_status = #{q.executeStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectByPatientId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectByInhospitalId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectPendingDrugs" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：查 execute_status IN (0, 1) -->
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.PatientDrug">
+        <!-- TODO 学生实现：插入医嘱 -->
+    </insert>
+
+    <update id="update" parameterType="com.hims.domain.PatientDrug">
+        <!-- TODO 学生实现：动态更新（用 <set> + <if>） -->
+    </update>
+
+    <update id="execute">
+        <!-- TODO 学生实现：执行医嘱（更新 execute_status=1, execute_time, execute_user_id） -->
+    </update>
+
+    <update id="pause">
+        <!-- TODO 学生实现：暂停医嘱 -->
+    </update>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+    </delete>
+
+    <select id="selectDrugUsageStats" resultType="map">
+        <!-- TODO 学生实现：按药品统计用量 -->
+    </select>
+
+</mapper>

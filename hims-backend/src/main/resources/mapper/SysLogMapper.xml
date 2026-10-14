@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.SysLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.SysLog">
+        <id column="log_id" property="logId"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="operation" property="operation"/>
+        <result column="method" property="method"/>
+        <result column="params" property="params"/>
+        <result column="ip" property="ip"/>
+        <result column="result" property="result"/>
+        <result column="status" property="status"/>
+        <result column="error_msg" property="errorMsg"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.hims.domain.SysLog">
+        INSERT INTO sys_log (
+            user_id, user_name, operation, method, params, ip, result, status, error_msg, create_time
+        ) VALUES (
+            #{userId}, #{userName}, #{operation}, #{method}, #{params}, #{ip}, #{result}, #{status}, #{errorMsg}, #{createTime}
+        )
+    </insert>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT * FROM sys_log
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="operation != null and operation != ''">
+                AND operation LIKE CONCAT('%', #{operation}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM sys_log
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="operation != null and operation != ''">
+                AND operation LIKE CONCAT('%', #{operation}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM sys_log WHERE log_id = #{logId}
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM sys_log
+    </delete>
+
+    <delete id="deleteBefore">
+        DELETE FROM sys_log WHERE create_time &lt; #{beforeTime}
+    </delete>
+
+</mapper>

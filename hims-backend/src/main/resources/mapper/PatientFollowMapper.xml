@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.PatientFollowMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.PatientFollow">
+        <id column="follow_id" property="followId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="inhospital_id" property="inhospitalId"/>
+        <result column="follow_type" property="followType"/>
+        <result column="follow_time" property="followTime"/>
+        <result column="follow_actual_time" property="followActualTime"/>
+        <result column="follow_way" property="followWay"/>
+        <result column="follow_content" property="followContent"/>
+        <result column="follow_result" property="followResult"/>
+        <result column="symptoms" property="symptoms"/>
+        <result column="medication_compliance" property="medicationCompliance"/>
+        <result column="recovery_status" property="recoveryStatus"/>
+        <result column="next_follow_time" property="nextFollowTime"/>
+        <result column="ai_suggest" property="aiSuggest"/>
+        <result column="follow_user_id" property="followUserId"/>
+        <result column="follow_status" property="followStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="inhospital_no" property="inhospitalNo"/>
+        <result column="follow_user_name" property="followUserName"/>
+        <result column="follow_status_name" property="followStatusName"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        pf.follow_id, pf.patient_id, pf.inhospital_id, pf.follow_type, pf.follow_time,
+        pf.follow_actual_time, pf.follow_way, pf.follow_content, pf.follow_result,
+        pf.symptoms, pf.medication_compliance, pf.recovery_status, pf.next_follow_time,
+        pf.ai_suggest, pf.follow_user_id, pf.follow_status, pf.create_time, pf.update_time,
+        pi.name AS patient_name,
+        phi.inhospital_no,
+        su.real_name AS follow_user_name,
+        CASE pf.follow_status
+            WHEN 0 THEN '待随访'
+            WHEN 1 THEN '已完成'
+            WHEN 2 THEN '失联'
+            WHEN 3 THEN '取消'
+            ELSE '未知'
+        END AS follow_status_name
+    </sql>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM patient_follow pf
+        LEFT JOIN patient_info pi ON pf.patient_id = pi.patient_id
+        LEFT JOIN patient_inhospital phi ON pf.inhospital_id = phi.inhospital_id
+        LEFT JOIN sys_user su ON pf.follow_user_id = su.user_id
+        <where>
+            <if test="q.patientId != null and q.patientId != ''">
+                AND pf.patient_id = #{q.patientId}
+            </if>
+            <if test="q.inhospitalId != null">
+                AND pf.inhospital_id = #{q.inhospitalId}
+            </if>
+            <if test="q.followType != null and q.followType != ''">
+                AND pf.follow_type = #{q.followType}
+            </if>
+            <if test="q.followWay != null and q.followWay != ''">
+                AND pf.follow_way = #{q.followWay}
+            </if>
+            <if test="q.followStatus != null">
+                AND pf.follow_status = #{q.followStatus}
+            </if>
+            <if test="q.followUserId != null">
+                AND pf.follow_user_id = #{q.followUserId}
+            </if>
+            <if test="q.followTimeStart != null">
+                AND pf.follow_time &gt;= #{q.followTimeStart}
+            </if>
+            <if test="q.followTimeEnd != null">
+                AND pf.follow_time &lt;= #{q.followTimeEnd}
+            </if>
+        </where>
+        <!-- TODO 学生可补充 ORDER BY -->
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM patient_follow pf
+        <where>
+            <if test="q.patientId != null and q.patientId != ''">
+                AND pf.patient_id = #{q.patientId}
+            </if>
+            <if test="q.followStatus != null">
+                AND pf.follow_status = #{q.followStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：根据 follow_id 查询 -->
+    </select>
+
+    <select id="selectByPatientId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectByInhospitalId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectPendingFollows" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：查 follow_status = 0 且 follow_time <= NOW() -->
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.PatientFollow">
+        <!-- TODO 学生实现：插入随访记录 -->
+    </insert>
+
+    <update id="update" parameterType="com.hims.domain.PatientFollow">
+        <!-- TODO 学生实现：动态更新（用 <set> + <if>） -->
+    </update>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+    </delete>
+
+    <select id="selectFollowStats" resultType="map">
+        <!-- TODO 学生实现：随访状态统计 -->
+    </select>
+
+    <select id="selectLostFollows" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：查 follow_status = 2 -->
+    </select>
+
+</mapper>

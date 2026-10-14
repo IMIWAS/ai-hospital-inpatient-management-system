@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.AiOcrRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.AiOcrRecord">
+        <id column="ocr_id" property="ocrId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="ocr_type" property="ocrType"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="image_base64" property="imageBase64"/>
+        <result column="ocr_result" property="ocrResult"/>
+        <result column="ocr_confidence" property="ocrConfidence"/>
+        <result column="extracted_fields" property="extractedFields"/>
+        <result column="status" property="status"/>
+        <result column="error_msg" property="errorMsg"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="operator_name" property="operatorName"/>
+        <result column="status_name" property="statusName"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        aor.ocr_id, aor.patient_id, aor.ocr_type, aor.image_url, aor.image_base64,
+        aor.ocr_result, aor.ocr_confidence, aor.extracted_fields, aor.status,
+        aor.error_msg, aor.operator_id, aor.create_time,
+        pi.name AS patient_name,
+        su.real_name AS operator_name,
+        CASE aor.status
+            WHEN 0 THEN '待处理'
+            WHEN 1 THEN '已识别'
+            WHEN 2 THEN '已建档'
+            WHEN 3 THEN '识别失败'
+            ELSE '未知'
+        END AS status_name
+    </sql>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM ai_ocr_record aor
+        LEFT JOIN patient_info pi ON aor.patient_id = pi.patient_id
+        LEFT JOIN sys_user su ON aor.operator_id = su.user_id
+        <where>
+            <if test="ocrType != null and ocrType != ''">
+                AND aor.ocr_type = #{ocrType}
+            </if>
+            <if test="status != null">
+                AND aor.status = #{status}
+            </if>
+        </where>
+        ORDER BY aor.create_time DESC
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM ai_ocr_record aor
+        <where>
+            <if test="ocrType != null and ocrType != ''">
+                AND aor.ocr_type = #{ocrType}
+            </if>
+            <if test="status != null">
+                AND aor.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.AiOcrRecord">
+        <!-- TODO 学生实现：插入 OCR 记录 -->
+    </insert>
+
+    <update id="update" parameterType="com.hims.domain.AiOcrRecord">
+        <!-- TODO 学生实现：动态更新（用 <set> + <if>） -->
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectByPatientId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+    </delete>
+
+</mapper>

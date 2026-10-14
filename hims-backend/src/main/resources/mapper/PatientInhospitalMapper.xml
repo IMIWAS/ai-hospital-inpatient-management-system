@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.PatientInhospitalMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.PatientInhospital">
+        <id column="inhospital_id" property="inhospitalId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="inhospital_no" property="inhospitalNo"/>
+        <result column="department" property="department"/>
+        <result column="bed_id" property="bedId"/>
+        <result column="diagnosis" property="diagnosis"/>
+        <result column="diagnosis_icd" property="diagnosisIcd"/>
+        <result column="inhospital_time" property="inhospitalTime"/>
+        <result column="doctor_id" property="doctorId"/>
+        <result column="nurse_id" property="nurseId"/>
+        <result column="outhospital_time" property="outhospitalTime"/>
+        <result column="inhospital_days" property="inhospitalDays"/>
+        <result column="total_cost" property="totalCost"/>
+        <result column="settlement_status" property="settlementStatus"/>
+        <result column="settlement_time" property="settlementTime"/>
+        <result column="inhospital_status" property="inhospitalStatus"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="patient_gender" property="patientGender"/>
+        <result column="patient_age" property="patientAge"/>
+        <result column="bed_no" property="bedNo"/>
+        <result column="room_no" property="roomNo"/>
+        <result column="doctor_name" property="doctorName"/>
+        <result column="nurse_name" property="nurseName"/>
+        <result column="status_name" property="statusName"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        pi.inhospital_id, pi.patient_id, pi.inhospital_no, pi.department, pi.bed_id,
+        pi.diagnosis, pi.diagnosis_icd, pi.inhospital_time, pi.doctor_id, pi.nurse_id,
+        pi.outhospital_time, pi.inhospital_days, pi.total_cost, pi.settlement_status, pi.settlement_time,
+        pi.inhospital_status, pi.remark, pi.create_time, pi.update_time,
+        p.name AS patient_name, p.gender AS patient_gender, p.age AS patient_age,
+        b.bed_no, b.room_no,
+        su.real_name AS doctor_name,
+        sn.real_name AS nurse_name,
+        CASE pi.inhospital_status WHEN 1 THEN '在院' WHEN 2 THEN '已出院' WHEN 3 THEN '转科' WHEN 4 THEN '请假' ELSE '未知' END AS status_name
+    </sql>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM patient_inhospital pi
+        LEFT JOIN patient_info p ON pi.patient_id = p.patient_id
+        LEFT JOIN bed_info b ON pi.bed_id = b.bed_id
+        LEFT JOIN sys_user su ON pi.doctor_id = su.user_id
+        LEFT JOIN sys_user sn ON pi.nurse_id = sn.user_id
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (pi.inhospital_no LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR p.name LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR pi.diagnosis LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR pi.patient_id LIKE CONCAT('%',#{q.keyword},'%') )
+            </if>
+            <if test="q.department != null and q.department != ''">
+                AND pi.department = #{q.department}
+            </if>
+            <if test="q.inhospitalStatus != null">
+                AND pi.inhospital_status = #{q.inhospitalStatus}
+            </if>
+            <if test="q.settlementStatus != null">
+                AND pi.settlement_status = #{q.settlementStatus}
+            </if>
+            <if test="q.inhospitalTimeStart != null">
+                AND pi.inhospital_time &gt;= #{q.inhospitalTimeStart}
+            </if>
+            <if test="q.inhospitalTimeEnd != null">
+                AND pi.inhospital_time &lt;= #{q.inhospitalTimeEnd}
+            </if>
+            <if test="q.doctorId != null">
+                AND pi.doctor_id = #{q.doctorId}
+            </if>
+            <if test="q.nurseId != null">
+                AND pi.nurse_id = #{q.nurseId}
+            </if>
+        </where>
+        <!-- TODO 学生可补充 ORDER BY -->
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM patient_inhospital pi
+        LEFT JOIN patient_info p ON pi.patient_id = p.patient_id
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (pi.inhospital_no LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR p.name LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR pi.diagnosis LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.department != null and q.department != ''">
+                AND pi.department = #{q.department}
+            </if>
+            <if test="q.inhospitalStatus != null">
+                AND pi.inhospital_status = #{q.inhospitalStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectByInhospitalNo" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectLatestByPatientId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：按 inhospital_time DESC LIMIT 1 -->
+    </select>
+
+    <select id="selectByPatientId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.PatientInhospital">
+        <!-- TODO 学生实现：插入住院记录 -->
+    </insert>
+
+    <update id="update" parameterType="com.hims.domain.PatientInhospital">
+        <!-- TODO 学生实现：动态更新（用 <set> + <if>） -->
+    </update>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+    </delete>
+
+    <select id="selectInhospitalStats" resultType="map">
+        <!-- TODO 学生实现：按科室统计在院人数 -->
+    </select>
+
+    <select id="selectBedUsageStats" resultType="map">
+        <!-- TODO 学生实现：床位使用情况统计 -->
+    </select>
+
+    <select id="selectDeptStats" resultType="map">
+        <!-- TODO 学生实现：科室住院人次统计 -->
+    </select>
+
+    <select id="selectCostStats" resultType="map">
+        <!-- TODO 学生实现：住院费用统计 -->
+    </select>
+
+</mapper>

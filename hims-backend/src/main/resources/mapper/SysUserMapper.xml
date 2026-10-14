@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.SysUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.SysUser">
+        <id column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="password" property="password"/>
+        <result column="real_name" property="realName"/>
+        <result column="role_type" property="roleType"/>
+        <result column="department" property="department"/>
+        <result column="job_title" property="jobTitle"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="gender" property="gender"/>
+        <result column="id_card" property="idCard"/>
+        <result column="avatar_url" property="avatarUrl"/>
+        <result column="license_no" property="licenseNo"/>
+        <result column="introduction" property="introduction"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+        <result column="role_name" property="roleName"/>
+        <result column="status_name" property="statusName"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        u.user_id, u.user_name, u.password, u.real_name, u.role_type, u.department,
+        u.job_title, u.phone, u.email, u.gender, u.id_card, u.avatar_url,
+        u.license_no, u.introduction, u.last_login_time, u.create_time, u.update_time, u.status,
+        CASE u.role_type WHEN 1 THEN '管理员' WHEN 2 THEN '医生' WHEN 3 THEN '护士' WHEN 4 THEN '行政' WHEN 5 THEN '医技' ELSE '其他' END AS role_name,
+        CASE u.status WHEN 1 THEN '正常' WHEN 0 THEN '禁用' ELSE '未知' END AS status_name
+    </sql>
+
+    <!-- ====== 登录用 SQL 保留完整实现（教学参考） ====== -->
+    <select id="selectByUserName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM sys_user u
+        WHERE u.user_name = #{userName}
+        LIMIT 1
+    </select>
+
+    <select id="selectByPhone" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：根据 手机号 查询 -->
+    select  <include refid="Base_Column">
+
+    </include>
+        from sys_user u
+    WHERE u.phone =#{phone}
+    limit 1
+    </select>
+
+    <!-- ====== 以下是教学骨架，学生需自行实现 ====== -->
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：根据 user_id 查询 -->
+        select <include refid="Base_Column"></include>
+        FROM sys_user u
+        WHERE u.user_id = #{userId}
+    </select>
+
+    <select id="selectByDepartment" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：按科室查询用户 -->
+    SELECT <include refid="Base_Column"></include>
+    FROM sys_user u
+    WHERE u.department=#{department}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM sys_user u
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (u.user_name LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR u.real_name LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR u.phone LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.roleType != null">AND u.role_type = #{q.roleType}</if>
+            <if test="q.department != null and q.department != ''">AND u.department = #{q.department}</if>
+            <if test="q.jobTitle != null and q.jobTitle != ''">AND u.job_title = #{q.jobTitle}</if>
+            <if test="q.status != null">AND u.status = #{q.status}</if>
+            <if test="q.onlyStaff != null and q.onlyStaff == true">
+                AND u.role_type IN (2,3)
+            </if>
+        </where>
+        <choose>
+            <when test="q.orderBy != null and q.orderBy != ''">
+                ORDER BY #{q.orderBy}
+                <choose>
+                    <when test="q.orderType != null and q.orderBy != '' and q.orderType == 'asc'">
+                        ASC
+                    </when>
+                </choose>
+            </when>
+            <otherwise>
+                ORDER BY u.create_time DESC
+            </otherwise>
+        </choose>
+        <!-- TODO 学生可补充 ORDER BY -->
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM sys_user u
+        <where>
+            <if test="q.keyword != null and q.keyword != ''">
+                AND (u.user_name LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR u.real_name LIKE CONCAT('%', #{q.keyword}, '%')
+                  OR u.phone LIKE CONCAT('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.roleType != null">AND u.role_type = #{q.roleType}</if>
+            <if test="q.department != null and q.department != ''">AND u.department = #{q.department}</if>
+            <if test="q.jobTitle != null and q.jobTitle != ''">AND u.job_title = #{q.jobTitle}</if>
+            <if test="q.status != null">AND u.status = #{q.status}</if>
+            <if test="q.onlyStaff != null and q.onlyStaff == true">
+                AND u.role_type IN (2,3)
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.SysUser">
+        <!-- TODO 学生实现：插入用户（密码应已 MD5 加密） -->
+        insert into sys_user (user_name,password,real_name,role_type,department,job_title,phone,email,gender,id_card,avatar_url,license_no,introduction,last_login_time,create_time,update_time)
+        values( #{userName},#{password},#{realName},#{roleType},#{department},#{jobTitle},#{phone},#{email},#{gender},#{idCard},#{avatarUrl},#{licenseNo},#{introduction},#{lastLoginTime},#{createTime},#{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.hims.domain.SysUser">
+     update sys_user
+    <set>
+<!--        <if test="userName != null and userName != ''"> user_name = #{userName},</if>-->
+        <if test="password != null and password != ''"> password = #{password},</if>
+        <if test="realName != null and realName != ''"> real_name = #{realName},</if>
+        <if test="roleType != null and roleType != ''"> role_type = #{roleType},</if>
+        <if test="department != null and department != ''"> department = #{department},</if>
+        <if test="jobTitle != null and jobTitle != ''"> job_title = #{jobTitle},</if>
+        <if test="phone != null and phone != ''"> phone = #{phone},</if>
+        <if test="email != null and email != ''"> email = #{email},</if>
+        <if test="gender != null and gender != ''"> gender = #{gender},</if>
+        <if test="idCard != null and idCard != ''"> id_card = #{idCard},</if>
+<!--        <if test="avatarUrl != null and avatarUrl != ''"> avatar_url = #{avatarUrl},</if>-->
+        <if test="licenseNo != null and licenseNo != ''"> license_no = #{licenseNo},</if>
+        <if test="introduction != null and introduction != ''"> introduction = #{introduction},</if>
+        <if test="avatarUrl != null and avatarUrl != ''"> avatar_url = #{avatarUrl},</if>
+        <if test="updateTime != null "> update_time = #{updateTime},</if>
+        <if test="status != null"> `status` = #{status},</if>
+    </set>
+        where user_id = #{userId}
+                
+    </update>
+
+    <update id="updatePassword">
+        <!-- TODO 学生实现：更新密码 -->
+        update sys_user set password = #{password} where user_id =#{userId}
+
+    </update>
+
+    <update id="updateLastLoginTime">
+        UPDATE sys_user SET last_login_time = #{loginTime}
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+        delete from sys_user where user_id=#{userId}
+    </delete>
+
+</mapper>

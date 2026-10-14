@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.PatientVitalMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.PatientVital">
+        <id column="vital_id" property="vitalId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="inhospital_id" property="inhospitalId"/>
+        <result column="temperature" property="temperature"/>
+        <result column="heart_rate" property="heartRate"/>
+        <result column="bp_high" property="bpHigh"/>
+        <result column="bp_low" property="bpLow"/>
+        <result column="blood_oxygen" property="bloodOxygen"/>
+        <result column="breath_rate" property="breathRate"/>
+        <result column="weight" property="weight"/>
+        <result column="height" property="height"/>
+        <result column="blood_sugar" property="bloodSugar"/>
+        <result column="risk_level" property="riskLevel"/>
+        <result column="risk_score" property="riskScore"/>
+        <result column="risk_tip" property="riskTip"/>
+        <result column="record_user_id" property="recordUserId"/>
+        <result column="record_time" property="recordTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="inhospital_no" property="inhospitalNo"/>
+        <result column="risk_level_name" property="riskLevelName"/>
+        <result column="record_user_name" property="recordUserName"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        pv.vital_id, pv.patient_id, pv.inhospital_id, pv.temperature, pv.heart_rate,
+        pv.bp_high, pv.bp_low, pv.blood_oxygen, pv.breath_rate, pv.weight, pv.height,
+        pv.blood_sugar, pv.risk_level, pv.risk_score, pv.risk_tip, pv.record_user_id,
+        pv.record_time, pv.create_time,
+        pi.name AS patient_name,
+        phi.inhospital_no,
+        CASE pv.risk_level WHEN 1 THEN '低危' WHEN 2 THEN '中危' WHEN 3 THEN '高危' ELSE '未知' END AS risk_level_name,
+        su.real_name AS record_user_name
+    </sql>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM patient_vital pv
+        LEFT JOIN patient_info pi ON pv.patient_id = pi.patient_id
+        LEFT JOIN patient_inhospital phi ON pv.inhospital_id = phi.inhospital_id
+        LEFT JOIN sys_user su ON pv.record_user_id = su.user_id
+        <where>
+            <if test="q.patientId != null and q.patientId != ''">
+                AND pv.patient_id = #{q.patientId}
+            </if>
+            <if test="q.inhospitalId != null">
+                AND pv.inhospital_id = #{q.inhospitalId}
+            </if>
+            <if test="q.riskLevel != null">
+                AND pv.risk_level = #{q.riskLevel}
+            </if>
+            <if test="q.recordTimeStart != null">
+                AND pv.record_time &gt;= #{q.recordTimeStart}
+            </if>
+            <if test="q.recordTimeEnd != null">
+                AND pv.record_time &lt;= #{q.recordTimeEnd}
+            </if>
+        </where>
+        <!-- TODO 学生可补充 ORDER BY -->
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM patient_vital pv
+        <where>
+            <if test="q.patientId != null and q.patientId != ''">
+                AND pv.patient_id = #{q.patientId}
+            </if>
+            <if test="q.riskLevel != null">
+                AND pv.risk_level = #{q.riskLevel}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectLatestByPatientId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：按 record_time DESC LIMIT 1 -->
+    </select>
+
+    <select id="selectHistoryByPatientId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现：按时间倒序，支持 limit 参数 -->
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.PatientVital">
+        <!-- TODO 学生实现：插入体征记录 -->
+    </insert>
+
+    <update id="update" parameterType="com.hims.domain.PatientVital">
+        <!-- TODO 学生实现：动态更新（用 <set> + <if>） -->
+    </update>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+    </delete>
+
+    <select id="selectHighRiskPatients" resultType="map">
+        <!-- TODO 学生实现：查 risk_level >= 2 的在院患者，含患者基本信息、床位号 -->
+    </select>
+
+    <select id="selectAbnormalStats" resultType="map">
+        <!-- TODO 学生实现：按日期分组统计各级风险人数 -->
+    </select>
+
+</mapper>

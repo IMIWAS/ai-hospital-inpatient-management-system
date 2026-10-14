@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hims.mapper.PatientCourseMapper">
+
+    <resultMap id="BaseResultMap" type="com.hims.domain.PatientCourse">
+        <id column="course_id" property="courseId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="inhospital_id" property="inhospitalId"/>
+        <result column="doctor_id" property="doctorId"/>
+        <result column="course_content" property="courseContent"/>
+        <result column="course_summary" property="courseSummary"/>
+        <result column="record_type" property="recordType"/>
+        <result column="is_ai_generated" property="isAiGenerated"/>
+        <result column="ai_confidence" property="aiConfidence"/>
+        <result column="attachments" property="attachments"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="inhospital_no" property="inhospitalNo"/>
+        <result column="doctor_name" property="doctorName"/>
+        <result column="record_type_name" property="recordTypeName"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        pc.course_id, pc.patient_id, pc.inhospital_id, pc.doctor_id, pc.course_content,
+        pc.course_summary, pc.record_type, pc.is_ai_generated, pc.ai_confidence,
+        pc.attachments, pc.create_time, pc.update_time,
+        pi.name AS patient_name,
+        phi.inhospital_no,
+        su.real_name AS doctor_name,
+        CASE pc.record_type
+            WHEN '日常病程' THEN '日常病程'
+            WHEN '查房记录' THEN '查房记录'
+            WHEN '抢救记录' THEN '抢救记录'
+            WHEN '手术记录' THEN '手术记录'
+            WHEN '出院记录' THEN '出院记录'
+            ELSE '其他'
+        END AS record_type_name
+    </sql>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM patient_course pc
+        LEFT JOIN patient_info pi ON pc.patient_id = pi.patient_id
+        LEFT JOIN patient_inhospital phi ON pc.inhospital_id = phi.inhospital_id
+        LEFT JOIN sys_user su ON pc.doctor_id = su.user_id
+        <where>
+            <if test="q.patientId != null and q.patientId != ''">
+                AND pc.patient_id = #{q.patientId}
+            </if>
+            <if test="q.inhospitalId != null">
+                AND pc.inhospital_id = #{q.inhospitalId}
+            </if>
+            <if test="q.doctorId != null">
+                AND pc.doctor_id = #{q.doctorId}
+            </if>
+            <if test="q.recordType != null and q.recordType != ''">
+                AND pc.record_type = #{q.recordType}
+            </if>
+            <if test="q.isAiGenerated != null">
+                AND pc.is_ai_generated = #{q.isAiGenerated}
+            </if>
+            <if test="q.createTimeStart != null">
+                AND pc.create_time &gt;= #{q.createTimeStart}
+            </if>
+            <if test="q.createTimeEnd != null">
+                AND pc.create_time &lt;= #{q.createTimeEnd}
+            </if>
+        </where>
+        <!-- TODO 学生可补充 ORDER BY -->
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1) FROM patient_course pc
+        <where>
+            <if test="q.patientId != null and q.patientId != ''">
+                AND pc.patient_id = #{q.patientId}
+            </if>
+            <if test="q.recordType != null and q.recordType != ''">
+                AND pc.record_type = #{q.recordType}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectByPatientId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <select id="selectByInhospitalId" resultMap="BaseResultMap">
+        <!-- TODO 学生实现 -->
+    </select>
+
+    <insert id="insert" parameterType="com.hims.domain.PatientCourse">
+        <!-- TODO 学生实现：插入病程记录 -->
+    </insert>
+
+    <update id="update" parameterType="com.hims.domain.PatientCourse">
+        <!-- TODO 学生实现：动态更新（用 <set> + <if>） -->
+    </update>
+
+    <delete id="deleteById">
+        <!-- TODO 学生实现 -->
+    </delete>
+
+</mapper>

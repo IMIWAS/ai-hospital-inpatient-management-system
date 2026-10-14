@@ -1,0 +1,138 @@
+﻿server:
+  port: 9001
+  servlet:
+    context-path: /hims
+  tomcat:
+    max-threads: 200
+    uri-encoding: UTF-8
+
+spring:
+  main:
+    # 允许循环依赖（兼容现有老依赖）
+    allow-circular-references: true
+  application:
+    name: hims-backend
+  profiles:
+    active: dev
+
+  # ========== 文件上传配置 ==========
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 50MB
+      file-size-threshold: 10MB
+
+  # ========== 数据源配置 ==========
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/hims?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8
+    username: root
+    password: 123456
+    hikari:
+      pool-name: HimsHikariCP
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
+  # ========== Redis 配置（预留） ==========
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 0
+    timeout: 5000
+
+  # ========== 邮件配置（预留） ==========
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: your_email@qq.com
+    password: your_auth_code
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+
+  # ========== Thymeleaf 配置 ==========
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    mode: HTML
+
+# ========== MyBatis 配置 ==========
+mybatis:
+  type-aliases-package: com.hims.domain
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    use-generated-keys: true
+    default-executor-type: REUSE
+
+# ========== PageHelper 分页插件 ==========
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+# ========== 业务自定义配置（HIMS 统一 key 前缀） ==========
+hims:
+  # 豆包 AI 配置（统一 key：hims.doubao.*）
+  doubao:
+    api-key: c516e839-6e6a-4b3c-973d-8338174811d2
+    base-url: https://ark.cn-beijing.volces.com/api/v3
+    # 推理接入点 ID（OCR + 风险分析）
+    model-id: ep-20250626100351-ddkbl
+    # 超时时间（秒）
+    timeout-seconds: 30
+
+  # 文件上传配置（统一 key：hims.upload.*）
+  upload:
+    # 本地存储路径（Linux/Mac/Windows 自动适配）
+    path: ${user.home}/hims-upload
+    # 数据库中存储的访问前缀
+    url-prefix: /hims/file/view/
+    # 单文件最大大小
+    max-size: 20971520
+
+  # WebSocket 配置（统一 key：hims.websocket.*）
+  websocket:
+    # 系统级广播消息开关
+    broadcast-enabled: true
+
+  # 风险预警阈值配置（统一 key：hims.risk.*）
+  risk:
+    # 体温阈值
+    temp-high: 39.0
+    temp-low: 35.0
+    # 收缩压阈值
+    bp-high-high: 160
+    bp-high-low: 90
+    # 舒张压阈值
+    bp-low-high: 100
+    bp-low-low: 60
+    # 心率阈值
+    heart-rate-high: 120
+    heart-rate-low: 50
+    # 血氧阈值
+    blood-oxygen-low: 90.0
+
+# ========== 日志配置 ==========
+logging:
+  level:
+    root: INFO
+    com.hims: DEBUG
+    com.hims.mapper: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
+  file:
+    path: ${user.home}/hims-logs
+    name: ${user.home}/hims-logs/hims-backend.log
