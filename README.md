@@ -17,6 +17,18 @@
 - **数据大屏**：关键指标实时可视化展示
 - **用户管理**：账号、角色、权限管理
 
+## 界面预览
+
+|  |  |
+| :---: | :---: |
+| **登录**<br>![登录](docs/images/01-login.png) | **首页仪表盘**<br>![首页仪表盘](docs/images/02-dashboard.png) |
+| **数据大屏**<br>![数据大屏](docs/images/03-big-screen.png) | **患者列表**<br>![患者列表](docs/images/04-patient-list.png) |
+| **住院管理**<br>![住院管理](docs/images/05-inhospital.png) | **床位管理**<br>![床位管理](docs/images/06-bed.png) |
+| **体征记录**<br>![体征记录](docs/images/07-vital.png) | **高危预警**<br>![高危预警](docs/images/08-high-risk.png) |
+| **病程记录**<br>![病程记录](docs/images/09-course.png) | **用药医嘱**<br>![用药医嘱](docs/images/10-drug.png) |
+| **出院随访**<br>![出院随访](docs/images/11-follow.png) | **OCR 识别建档**<br>![OCR 识别建档](docs/images/12-ocr.png) |
+| **识别记录**<br>![识别记录](docs/images/13-ocr-records.png) |  |
+
 ## 技术栈
 
 ### 前端
@@ -76,6 +88,9 @@ hims-v2/
 │   ├── .env.production
 │   ├── vite.config.js
 │   └── package.json
+│
+├── docs/
+│   └── images/                      # README 界面预览截图
 │
 ├── db/
 │   └── hims_database.sql            # 数据库建表与初始化脚本
